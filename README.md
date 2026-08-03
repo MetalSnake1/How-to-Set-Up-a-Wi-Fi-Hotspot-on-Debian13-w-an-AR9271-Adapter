@@ -22,8 +22,35 @@ sudo iwconfig
 
 My AR9271 adapters interface name was: wlx24ec99a67a4e
 
-So, you'll want to nano into /etc/hostapd/hostapd.conf and insert this:
+## Hostapd Setup
+
+So, you'll want to nano into /etc/hostapd/hostapd.conf and insert this: (you can change the password)
 ```insertion
 interface=wlx24ec99a67a4e driver=nl80211 ssid=DebianHotspot hw_mode=g channel=7 wmm_enabled=1 auth_algs=1 wpa=2 wpa_passphrase=YOUR_PASSWORD wpa_key_mgmt=WPA-PSK rsn_pairwise=CCMP
 ```
 That configures hostapd, which is the program that turns your standard wifi adapter into an AP. The configuration that I gave you tells hostapd which wifi adapter to use, which network to create, and how clients should authenticate. 
+
+## Dnsmasq Configuration 
+It's important to make sure the AR9271 hotspot uses a separate network from the ethernet connection, in order to prevent conflicts between the two interfaces. 
+```bash
+sudo ip addr flush dev wlx24ec99a67a4e
+sudo ip addr add 192.168.1.1/24 dev wlx24ec99a67a4e
+sudo ip link set wlx24ec99a67a4e up
+```
+This will ensure that there are no conflicts. 
+
+Next edit /etc/dnsmasq.conf with: 
+```bash
+interface=wlx24ec99a67a4e
+bind-interfaces
+
+dhcp-range=192.168.1.10,192.168.1.100,12h
+
+dhcp-option=3,192.168.1.1
+dhcp-option=6,192.168.1.1
+```
+
+After saving the file, run this command:
+```bash
+sudo systemctl restart dnsmasq
+```
