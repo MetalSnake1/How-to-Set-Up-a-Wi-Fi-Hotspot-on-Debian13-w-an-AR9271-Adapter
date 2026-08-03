@@ -29,6 +29,13 @@ So, you'll want to nano into /etc/hostapd/hostapd.conf and insert this: (you can
 ```insertion
 interface=wlx24ec99a67a4e driver=nl80211 ssid=DebianHotspot hw_mode=g channel=7 wmm_enabled=1 auth_algs=1 wpa=2 wpa_passphrase=YOUR_PASSWORD wpa_key_mgmt=WPA-PSK rsn_pairwise=CCMP
 ```
+Then add hostapd with
+```bash
+sudo systemctl enable hostapd
+sudo systemctl start hostapd
+```
+
+sudo systemctl enable hostapd
 That configures hostapd, which is the program that turns your standard wifi adapter into an AP. The configuration that I gave you tells hostapd which wifi adapter to use, which network to create, and how clients should authenticate. 
 
 ## Dnsmasq Configuration 
@@ -38,7 +45,9 @@ sudo ip addr flush dev wlx24ec99a67a4e
 sudo ip addr add 192.168.1.1/24 dev wlx24ec99a67a4e
 sudo ip link set wlx24ec99a67a4e up
 ```
-These commands will assign any existing ip configuration that the wifi adapter might have and assign it to the static ip address 192.168.1.1/24, which is the gateway for the hotspot clients.
+*Quick note: "sudo ip addr add 192.168.1.1/24 dev wlx24ec99a67a4e" this must be run after every reboot, unless you make the ip persistent across every reboot.
+
+These commands will remove any existing IP configuration from the Wi-Fi adapter and assign it the static address 192.168.1.1/24, which is the gateway for the hotspot clients.
 
 Next edit /etc/dnsmasq.conf with: 
 ```bash
