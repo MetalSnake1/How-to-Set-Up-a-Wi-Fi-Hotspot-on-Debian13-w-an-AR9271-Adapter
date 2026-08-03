@@ -27,7 +27,7 @@ sudo iwconfig
 I found that my AR9271 adapters interface name was: wlx24ec99a67a4e. Your interface name will most likely be different.
 
 ## Disable Network Manager:
-Network manager will most likely try to reconnect the adapter to a network instead of allowing hostapd control it. So, run:
+Network manager will most likely try to reconnect the adapter to a network instead of allowing hostapd to control it. So, run:
 
 ```bash
 sudo nmcli device set wlx24ec99a67a4e managed no
@@ -51,7 +51,7 @@ sudo systemctl restart hostapd
 ```
 
 
-Then add hostapd with
+Then start hostapd with
 ```bash
 sudo systemctl enable hostapd
 sudo systemctl start hostapd
