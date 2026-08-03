@@ -1,9 +1,5 @@
 Important Note: You must have an ethernet connection running to the Debian13 computer. 
 
-The AR9271 uses a driver called ath9k_htc, so you'll have to install the firmware package with: 
-```bash
-sudo apt install firmware-ath9k-htc
-```
 
 ## Software Setup:
 *hostapd - creates the wireless access point
@@ -14,13 +10,18 @@ sudo apt install firmware-ath9k-htc
 ```bash
 sudo apt install firmware-ath9k-htc
 ```
+and 
+
+```bash
+sudo apt install hostapd dnsmasq
+```
 
 Okay, now when I used the command
 ```bash
 sudo iwconfig
 ```
 
-My AR9271 adapters interface name was: wlx24ec99a67a4e
+I found that my AR9271 adapters interface name was: wlx24ec99a67a4e
 
 ## Hostapd Setup
 
@@ -37,7 +38,7 @@ sudo ip addr flush dev wlx24ec99a67a4e
 sudo ip addr add 192.168.1.1/24 dev wlx24ec99a67a4e
 sudo ip link set wlx24ec99a67a4e up
 ```
-This will ensure that there are no conflicts. 
+These commands will assign any existing ip configuration that the wifi adapter might have and assign it to the static ip address 192.168.1.1/24, which is the gateway for the hotspot clients.
 
 Next edit /etc/dnsmasq.conf with: 
 ```bash
@@ -70,7 +71,7 @@ Find out what your ethernet interface is. Now run:
 sudo iptables -t nat -A POSTROUTING -o <the actual name of your ethernet interface> -j MASQUERADE
 ```
 (don't include < > in the interface name)
-This makes it so the device that connects to the hotspot will actually have access to the internet, because the device can actually route back to the 192.168.1.x subnet 
+This makes it so outgoing packets appear to come from the Debian computers ethernet IP. Replies are translated back to the correct hotspot client. That allows devices on the 192.168.1.x subenet to access the internet. 
 
 ## Allow traffic forwarding
 This command allows traffic from the Wi-Fi adapter to reach the ethernet
@@ -82,6 +83,32 @@ Now allow return traffic back to the Wi-Fi clients
 ```bash
 sudo iptables -A FORWARD -i <the actual name of your ethernet interface> -o wlx24ec99a67a4e -m state --state RELATED,ESTABLISHED -j ACCEPT
 ```
+
+## Disable Network Manager:
+Network manager will most likely try to reconnect the adapter to a network instead of allowing hostapd control it. So, run:
+
+```bash
+sudo nmcli device set wlx24ec99a67a4e managed no
+```
+## Make sure to point hostapd at the config file.
+Nano /etc/default/hostapd and add: 
+
+```bash
+DAEMON_CONF="/etc/hostapd/hostapd.conf"
+```
+Restart hostapd after editing it. Use 
+```bash
+sudo systemctl restart hostapd
+```
+## Start the service and use the hotspot
+
+```bash
+sudo systemctl enable hostapd dnsmasq
+sudo systemctl restart hostapd
+sudo systemctl restart dnsmasq
+```
+
+
 
 ## (Optional) Make iptables rules survive reboot: 
 Install persistence: 
