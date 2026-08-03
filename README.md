@@ -21,7 +21,7 @@ Okay, now when I used the command
 sudo iwconfig
 ```
 
-I found that my AR9271 adapters interface name was: wlx24ec99a67a4e
+I found that my AR9271 adapters interface name was: wlx24ec99a67a4e. Your interface name will most likely be different.
 
 ## Hostapd Setup
 
