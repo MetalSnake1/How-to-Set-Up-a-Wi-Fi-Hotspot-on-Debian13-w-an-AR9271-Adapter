@@ -13,7 +13,7 @@ sudo apt install firmware-ath9k-htc
 ```
 and 
 
-Also, that the AR9271 may require the non-free-firmware repository. If you get: Unable to locate package firmware-ath9k-htc, that's probably why.  
+(Also, the AR9271 may require the non-free-firmware repository. If you get: Unable to locate package firmware-ath9k-htc, that's probably why.)  
 
 ```bash
 sudo apt install hostapd dnsmasq
