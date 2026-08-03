@@ -54,3 +54,41 @@ After saving the file, run this command:
 ```bash
 sudo systemctl restart dnsmasq
 ```
+## Now Enable Ip Forwarding:
+```bash
+sudo sysctl -w net.ipv4.ip_forward=1
+```
+To make it permanent after reboot: 
+```bash
+sudo nano /etc/sysctl.conf
+```
+Add this: net.ipv4.ip_forward=1
+
+## Add NAT
+Find out what your ethernet interface is. Now run: 
+```bash
+sudo iptables -t nat -A POSTROUTING -o <the actual name of your ethernet interface> -j MASQUERADE
+```
+(don't include < > in the interface name)
+This makes it so the device that connects to the hotspot will actually have access to the internet, because the device can actually route back to the 192.168.1.x subnet 
+
+## Allow traffic forwarding
+This command allows traffic from the Wi-Fi adapter to reach the ethernet
+```bash
+sudo iptables -A FORWARD -i wlx24ec99a67a4e -o <the actual name of your ethernet interface> -j ACCEPT
+```
+
+Now allow return traffic back to the Wi-Fi clients
+```bash
+sudo iptables -A FORWARD -i <the actual name of your ethernet interface> -o wlx24ec99a67a4e -m state --state RELATED,ESTABLISHED -j ACCEPT
+```
+
+## (Optional) Make iptables rules survive reboot: 
+Install persistence: 
+```bash
+sudo apt install iptables-persistent
+```
+Save your rules:
+```bash
+sudo netfilter-persistent save
+```
